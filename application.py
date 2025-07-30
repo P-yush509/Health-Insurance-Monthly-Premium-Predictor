@@ -1,10 +1,10 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import pickle
+import joblib
 
 with open('model.pkl', 'rb') as file:
-    model, preprocessor = pickle.load(file)
+    model, preprocessor = joblib.load(file)
 
 st.title("Health Insurance Monthly Premium Predictor")
 
