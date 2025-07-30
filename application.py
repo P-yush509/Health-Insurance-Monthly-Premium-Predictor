@@ -3,8 +3,12 @@ import numpy as np
 import pandas as pd
 import joblib
 
-with open('model.pkl', 'rb') as file:
-    model, preprocessor = joblib.load(file)
+try:
+    with open('model.pkl', 'rb') as file:
+        model, preprocessor = joblib.load(file)
+except (FileNotFoundError, AttributeError, ImportError) as e:
+    st.error("Error loading the model. Please ensure the 'model.pkl' file is present and compatible.")
+    st.stop()
 
 st.title("Health Insurance Monthly Premium Predictor")
 
