@@ -3,29 +3,39 @@ import numpy as np
 import pandas as pd
 import joblib
 
+# Load the entire pipeline (model + preprocessor)
 try:
     with open('model.pkl', 'rb') as file:
-        model, preprocessor = joblib.load(file)
+        pipeline = joblib.load(file)
 except (FileNotFoundError, AttributeError, ImportError) as e:
-    st.error("Error loading the model. Please ensure the 'model.pkl' file is present and compatible.")
+    st.error("⚠️ Error loading the model.")
     st.stop()
 
-st.title("Health Insurance Monthly Premium Predictor")
+st.title("🏥 Health Insurance Monthly Premium Predictor")
 
-age = st.slider("Age", 18, 100)
-bmi = st.number_input("BMI", 10.0, 50.0)
-children = st.number_input("Children", 0, 10)
+# User input
+age = st.slider("Age", 18, 100, 30)
+bmi = st.number_input("BMI", min_value=10.0, max_value=50.0, value=22.0)
+children = st.number_input("Number of Children", min_value=0, max_value=10, step=1, value=0)
 sex = st.selectbox("Sex", ["male", "female"])
 smoker = st.selectbox("Smoker", ["yes", "no"])
 region = st.selectbox("Region", ["northeast", "southeast", "southwest", "northwest"])
 
 if st.button("Predict"):
-    user_df = pd.DataFrame([[sex, smoker, region, age, bmi, children]], 
-                           columns=['sex', 'smoker', 'region', 'age', 'bmi', 'children'])
-    X_input = preprocessor.transform(user_df)
-    prediction = model.predict(X_input)[0]
-    if prediction <= 0:
-        st.error("You Don't Need Insurance")
-    else:
-        st.success(f"Estimated Medical Cost: INR {prediction:.2f}")
+    # Create input dataframe
+    input_df = pd.DataFrame([{
+        'sex': sex,
+        'smoker': smoker,
+        'region': region,
+        'age': age,
+        'bmi': bmi,
+        'children': children
+    }])
 
+    # Predict
+    prediction = pipeline.predict(input_df)[0]
+
+    if prediction <= 0:
+        st.error("You don't need insurance based on the given inputs.")
+    else:
+        st.success(f"Estimated Monthly Premium: INR {prediction:.2f}")
